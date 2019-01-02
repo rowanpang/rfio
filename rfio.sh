@@ -19,7 +19,7 @@ SSHPSCP="sshpass -p \$(gotNodePwd \$node) scp"
 SSHPSSH="sshpass -p \$(gotNodePwd \$node) ssh"
 
 function doInit() {
-    yum install sshpass
+    yum install sshpass	    #need epel
 
     for np in $nodesPwds;do
 	n=${np%,*}
