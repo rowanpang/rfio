@@ -236,7 +236,7 @@ function dofio() {
 
 	echo -e '\033[0;1;31m--do dofio for issue $issue--\033[0m'
 
-	echo "do dofio for issues $issue"
+	#echo "do dofio for issues $issue"
 	idtSuffix=${issue#fioT-}
 	idtSuffix=${idtSuffix%.*}	    #remove type suffix '.txt'
 	#echo $idtSuffix
