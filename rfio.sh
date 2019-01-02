@@ -20,6 +20,7 @@ SSHPSSH="sshpass -p \$(gotNodePwd \$node) ssh"
 
 function doInit() {
     yum install sshpass	    #need epel
+    yum install fio
 
     for np in $nodesPwds;do
 	n=${np%,*}
