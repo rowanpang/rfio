@@ -5,7 +5,7 @@ nodesPwds="
     127.0.0.1,rootroot
 "
 
-issue fileName
+#issue fileName
 issues="
     fioT-seqW-1M
     fioT-randW-4k
@@ -234,7 +234,7 @@ function dofio() {
 	    break
 	fi
 
-	echo -e '\033[0;1;31m--do dofio for issue $issue--\033[0m'
+	echo -e "\033[0;1;31m--do dofio for issue $issue--\033[0m"
 
 	#echo "do dofio for issues $issue"
 	idtSuffix=${issue#fioT-}
