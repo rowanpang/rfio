@@ -32,7 +32,8 @@ if [ -d $dirName ];then
 fi
 mkdir $dirName
 
-yum install sysstat dstat
+command -v dstat >/dev/null 2>&1 || yum install dstat
+command -v pidstat >/dev/null 2>&1 || yum install sysstat
 
 #disk
 iostat sdb sdc sdd sde sdf sdg sdh 1 -m > $dirName/disk.log &

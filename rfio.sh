@@ -5,12 +5,16 @@ nodesPwds="
     127.0.0.1,rootroot
 "
 
-#issue fileName
+#issue fileNames
 issues="
-    fioT-seqW-1M
-    fioT-randW-4k
-    fioT-randR-4k
-    fioT-seqR-1M
+    fioT-randR-4k-10G-10Job.txt
+    fioT-randR-4k-10G-1Job.txt
+    fioT-randW-4k-10G-10Job.txt
+    fioT-randW-4k-10G-1Job.txt
+    fioT-seqR-1M-100G-10Job.txt
+    fioT-seqR-1M-10G-1Job.txt
+    fioT-seqW-1M-100G-10Job.txt
+    fioT-seqW-1M-10G-1Job.txt
 "
 
 monScript="./monitor.sh"
@@ -21,8 +25,8 @@ SSHPSCP="sshpass -p \$(gotNodePwd \$node) scp"
 SSHPSSH="sshpass -p \$(gotNodePwd \$node) ssh"
 
 function doInit() {
-    yum install sshpass	    #need epel
-    yum install fio
+    command -v sshpass >/dev/null 2>&1 || yum install sshpass	    #need epel
+    command -v fio >/dev/null 2>&1 || yum install fio
 
     for np in $nodesPwds;do
 	n=${np%,*}
@@ -119,6 +123,22 @@ function preMon(){
     for node in $nodes;do
 	echo "do preMon for node:$node"
 	workDir=`sshpass -p $(gotNodePwd $node) ssh $node mktemp -d`
+	case $? in
+	    0)
+		;;
+	    5)
+		echo "--Invalid/incorrect password"
+		exit
+		;;
+	    6)
+		echo "--sshpass exits without confirming the new key"
+		exit
+		;;
+	    *)
+		echo "--sshpass error,exit"
+		exit
+	esac
+
 	#nName=`sshpass -p $(gotNodePwd $node) ssh $node hostname`
 	if [ -z $dryRun ];then
 	    sshpass -p $(gotNodePwd $node) scp $monScript root@$node:$workDir
@@ -130,14 +150,6 @@ function preMon(){
 	info="$node,$workDir"
 	saveNodeinfo $node "$info"
     done
-
-    if [ -z $dryRun ];then
-	resDir="res-`date +%Y%m%d-%H%M%S`"
-	if [ -d $resDir ];then
-	    rm -rf $resDir
-	fi
-	mkdir $resDir
-    fi
 
     echo
 }
@@ -222,12 +234,8 @@ function doClean() {
     echo
 }
 
-function dofio() {
-    preMon
-    if [ X$optIssue != X ];then
-	issues=$optIssue
-    fi
-    echo "finally issues:$issues"
+function dofioIssues() {
+    issues="$@"
     for issue in $issues ;do
 	if ! [ -s $issue ];then
 	    echo "issue file $issue not exist break"
@@ -236,8 +244,19 @@ function dofio() {
 
 	echo -e "\033[0;1;31m--do dofio for issue $issue--\033[0m"
 
+	testType=${issue%/fioT-*}
+	testType=${testType#fioT-}
+	echo "testType $testType"
+	if [ -z $dryRun ];then
+	    resDir="$testType-res-`date +%Y%m%d-%H%M%S`"
+	    if [ -d $resDir ];then
+		rm -rf $resDir
+	    fi
+	    mkdir $resDir
+	fi
+
 	#echo "do dofio for issues $issue"
-	idtSuffix=${issue#fioT-}
+	idtSuffix=${issue##*fioT-}
 	idtSuffix=${idtSuffix%.*}	    #remove type suffix '.txt'
 	#echo $idtSuffix
 	startMon $idtSuffix
@@ -255,42 +274,64 @@ function dofio() {
     postMon
 }
 
+function dofio() {
+    preMon
+    if [ X$optIssues != X ];then
+	issues=$optIssues
+    else
+	if [ X$testType == X ];then
+	    echo "testType NONE error,exit"
+	    exit
+	fi
+	issuesNew=""
+	for issue in $issues ;do
+	    issuesNew="$issuesNew fioT-$testType/$issue"
+	done
+	issues=$issuesNew
+    fi
+
+    echo "finally issues:
+	$issues
+    "
+    dofioIssues "$issues"
+}
+
 dryRun=""
 cleanRun=""
-optIssue=""
-function usage(){
-    echo "usage $0 [-t] optIssue/ -c/ -d/ $0"
-    echo "-d: dryRun"
-    echo "-c: doClean"
-    echo "-t: optIssue"
+optIssues=""
+testType=""
+
+function usage () {
+    echo "Usage :  $0 [options] [optIssues]
+	Options:
+	-h	    Display this message
+	-d	    dryRun
+	-c	    doClean
+	-t	    testType
+    "
 }
 
 function main(){
-    while [ $# -gt 0 ]; do
-	case "$1" in
-	  -h)
+    while getopts "hdct:" opt;do
+    case $opt in
+        h)
 	    usage
-	    exit
+	    exit 0
 	    ;;
-	  -d)
+	d)
 	    dryRun="True"
 	    ;;
-	  -c)
+	c)
 	    cleanRun="True"
 	    ;;
-	  -t)
-	    optIssue="$2"
-	    shift
-	    ;;
-	  fioT-*)
-	    optIssue="$1"
-	    ;;
-	esac
-	shift
+	t)
+	    testType="$OPTARG"
+    esac
     done
+    shift $(($OPTIND-1))
+    optIssues=$@
 
     doInit
-
     if [ -n "$cleanRun" ];then
 	doClean
     else
