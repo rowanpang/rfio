@@ -279,6 +279,7 @@ function dofio() {
     if [ X$optIssues != X ];then
 	issues=$optIssues
     else
+	#根据testType 构造issue fileNames
 	if [ X$testType == X ];then
 	    echo "testType NONE error,exit"
 	    exit
