@@ -244,8 +244,9 @@ function dofioIssues() {
 
 	echo -e "\033[0;1;31m--do dofio for issue $issue--\033[0m"
 
-	testType=${issue%/fioT-*}
-	testType=${testType#fioT-}
+	#fioT-blk/fioT-randR-4k-10G-10Job.txt
+	testType=${issue%/fioT-*}		#===> fioT-blk
+	testType=${testType#fioT-}		#===> blk type
 	echo "testType $testType"
 	if [ -z $dryRun ];then
 	    resDir="$testType-res-`date +%Y%m%d-%H%M%S`"
