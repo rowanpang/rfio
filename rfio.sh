@@ -7,14 +7,21 @@ nodesPwds="
 
 #issue fileNames
 issues="
-    fioT-randR-4k-10G-10Job.txt
-    fioT-randR-4k-10G-1Job.txt
-    fioT-randW-4k-10G-10Job.txt
-    fioT-randW-4k-10G-1Job.txt
-    fioT-seqR-1M-100G-10Job.txt
-    fioT-seqR-1M-10G-1Job.txt
-    fioT-seqW-1M-100G-10Job.txt
-    fioT-seqW-1M-10G-1Job.txt
+    4k-rand-read
+    4k-rand-rw
+    4k-rand-write
+    16k-rand-read
+    16k-rand-rw
+    16k-rand-write
+    64k-seq-read
+    64k-seq-rw
+    64k-seq-write
+    512k-seq-read
+    512k-seq-rw
+    512k-seq-write
+    1m-seq-read
+    1m-seq-rw
+    1m-seq-write
 "
 
 monScript="./monitor.sh"
