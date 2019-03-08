@@ -32,8 +32,8 @@ SSHPSCP="sshpass -p \$(gotNodePwd \$node) scp"
 SSHPSSH="sshpass -p \$(gotNodePwd \$node) ssh"
 
 function doInit() {
-    command -v sshpass >/dev/null 2>&1 || yum install sshpass	    #need epel
-    command -v fio >/dev/null 2>&1 || yum install fio
+    command -v sshpass >/dev/null 2>&1 || yum --assumeyes install sshpass	    #need epel
+    command -v fio >/dev/null 2>&1 || yum --assumeyes install fio
 
     for np in $nodesPwds;do
 	n=${np%,*}
@@ -170,7 +170,7 @@ function startMon(){
 	identify="$nName-$idtSuffix"
 	workDir=`gotWorkDir $node`
 	if [ -z $dryRun ];then
-	    sshpass -p $(gotNodePwd $node) ssh $node "cd $workDir && ./$monScript -ui $identify"
+	    sshpass -p $(gotNodePwd $node) ssh $node "cd $workDir && ./$monScript -d $identify"
 	fi
 	saveNodeinfo $node $identify
     done
