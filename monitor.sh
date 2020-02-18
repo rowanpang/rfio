@@ -44,34 +44,40 @@ function depCheck(){
 function doMon(){
     #disk
     iostat sda sdb sdc sdd sde sdf sdg sdh sdi sdj sdk sdl sdm 1 -m > $dirName/disk.log &
-    pids="$!"
+    pids="iostat,$!"
 
     #disk-extra
     iostat sda sdb sdc sdd sde sdf sdg sdh sdi sdj sdk sdl sdm 1 -m -x > $dirName/disk-extra.log &
-    pids="$pids $!"
+    pids="$pids iostat-x,$!"
 
     #net
     sar -n DEV 1 > $dirName/net.log 	&
-    pids="$pids $!"
+    pids="$pids sar-net,$!"
 
     #cpu
     sar -u 1 > $dirName/cpu.log	&
-    pids="$pids $!"
+    pids="$pids sar,$!"
 
     sar -P ALL 1 > $dirName/cpuPer.log 	&
-    pids="$pids $!"
+    pids="$pids sar-all,$!"
 
     #mem
     free -c 3600 -s 1 -h > $dirName/mem.log &
-    pids="$pids $!"
+    pids="$pids free,$!"
+
+    #mem-vmstat
+    recCmd="vmstat"
+    vmstat --wide $interval $count > $dirName/vmstat.log &
+    pids="$pids vmstat,$!"
+
 
     #pidstat
     pidstat -l -t -d -u -C "fio|tgtd|icfs|ceph-osd|radosgw" 1 > $dirName/pidstat.log &
-    pids="$pids $!"
+    pids="$pids pidstat,$!"
 
     #dstat
     dstat --nocolor > $dirName/dstat.log &
-    pids="$pids $!"
+    pids="$pids dstat,$!"
 
     echo $pids > $pidfile
     [ $verbose -ge 1 ] && echo "-----bg pids:$pids----------------"
